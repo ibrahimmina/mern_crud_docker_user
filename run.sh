@@ -1,17 +1,20 @@
 #!/bin/bash
 
-rundb=False
-runserver=False
-runclient=False
-runBuild=False
+rundb=0
+runserver=0
+runclient=0
+runBuild=0
+
+export $(grep -v '^#' .env | xargs)
+
 
 
 while [ -n "$1" ]; do # while loop starts
 	case "$1" in
-	-db) rundb=True ;;
-	-s) runserver=True ;;
-	-c) runclient=True ;;
-	-b) runBuild=True ;;
+	-db) rundb=1 ;;
+	-s) runserver=1 ;;
+	-c) runclient=1 ;;
+	-b) runBuild=1 ;;
 	--env)
         env=$2
 		shift # The double dash makes them parameters
@@ -33,25 +36,25 @@ elif [[ $env="prod" ]]; then
 fi
 RunCommand="docker-compose up -d"
 
-if [["$rundb" = True]]; then
-	ClientMessage=ClientMessage+"Running DB on Port"
-	RunCommand=RunCommand+"mongo"
+if [[ $rundb=1 ]]; then
+	ClientMessage=$ClientMessage$'\nRunning DB on Port '${MONGO_PORT}
+	RunCommand=$RunCommand" mongo"
 fi
 
 if [["$runserver" = True]]; then
-	ClientMessage=ClientMessage+"\n Running Server on Port"
-	RunCommand=RunCommand+"server"
+	ClientMessage=$ClientMessage"\nRunning Server on Port"
+	RunCommand=$RunCommand" server"
 fi
 
 if [["$runclient" = True]]; then
-	ClientMessage=ClientMessage+"\n Running Client on Port"
-	RunCommand=RunCommand+"client"
+	ClientMessage=$ClientMessage"\nRunning Client on Port"
+	RunCommand=$RunCommand" client"
 fi
 
 if [["$runBuild" = True]]; then
-	ClientMessage=ClientMessage+"\n Running Build on Port"
-	RunCommand=RunCommand+"--build"
+	ClientMessage=$ClientMessage"\nRunning Build on Port"
+	RunCommand=$RunCommand" --build"
 fi
 
-echo $ClientMessage
-echo $RunCommand
+echo "$ClientMessage"
+eval "$RunCommand"
