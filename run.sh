@@ -1,10 +1,17 @@
 #!/bin/bash
 
+rundb=False
+runserver=False
+runclient=False
+runBuild=False
+
+
 while [ -n "$1" ]; do # while loop starts
 	case "$1" in
 	-db) rundb=True ;;
 	-s) runserver=True ;;
 	-c) runclient=True ;;
+	-b) runBuild=True ;;
 	--env)
         env=$2
 		shift # The double dash makes them parameters
@@ -20,11 +27,31 @@ echo $runserver
 echo $runclient
 
 if [[ $env="dev" ]]; then
-    echo "RUNNING DEV ENVIRONMENT"
-    docker-compose up -d --build
+	ClientMessage="RUNNING Development Environment"
 elif [[ $env="prod" ]]; then
-    echo "RUNNING PROD ENVIRONMENT"
-    docker-compose up -d --build
-else
-    echo "ABORT WRONG ENVIRONMENT"
+	ClientMessage="RUNNING Production Environment"
 fi
+RunCommand="docker-compose up -d"
+
+if [["$rundb" = True]]; then
+	ClientMessage=ClientMessage+"Running DB on Port"
+	RunCommand=RunCommand+"mongo"
+fi
+
+if [["$runserver" = True]]; then
+	ClientMessage=ClientMessage+"\n Running Server on Port"
+	RunCommand=RunCommand+"server"
+fi
+
+if [["$runclient" = True]]; then
+	ClientMessage=ClientMessage+"\n Running Client on Port"
+	RunCommand=RunCommand+"client"
+fi
+
+if [["$runBuild" = True]]; then
+	ClientMessage=ClientMessage+"\n Running Build on Port"
+	RunCommand=RunCommand+"--build"
+fi
+
+echo $ClientMessage
+echo $RunCommand
