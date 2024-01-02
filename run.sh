@@ -38,7 +38,7 @@ RunCommand="docker-compose up -d"
 
 if [[ $rundb=1 ]]; then
 	ClientMessage=$ClientMessage$'\nRunning DB on Port '${MONGO_PORT}
-	RunCommand=$RunCommand" mongo"
+	RunCommand=$RunCommand" database_server"
 fi
 
 if [["$runserver" = True]]; then
